@@ -1,0 +1,164 @@
+<x-app-layout>
+
+@section('content')
+<div class="d-flex flex-column align-items-center my-5">
+    <h2 class="fw-bold text-gradient display-1">Editar Crédito</h2>
+</div>
+
+<div class="d-flex justify-content-center">
+    <div class="bg-white shadow-lg rounded-4 p-5 w-100" style="max-width: 900px;">
+
+        {{-- Mensajes de validación --}}
+        @if ($errors->any())
+            <div class="alert alert-danger">
+                <strong>⚠️ Ocurrieron algunos errores:</strong>
+                <ul class="mb-0">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
+        {{-- Mensaje de éxito --}}
+        @if (session('success'))
+            <div class="alert alert-success">
+                {{ session('success') }}
+            </div>
+        @endif
+
+        {{-- Formulario --}}
+        <form action="{{ route('creditos.update', $credito->id) }}" method="POST" class="d-grid gap-4">
+            @csrf
+            @method('PUT')
+
+            {{-- Cliente --}}
+            <div class="form-group">
+                <label class="form-label fw-semibold">👤 Cliente</label>
+                <select name="id_cliente" class="form-select input-glass" required>
+                    @foreach ($clientes as $cliente)
+                        <option value="{{ $cliente->id }}" {{ $cliente->id == $credito->id_cliente ? 'selected' : '' }}>
+                            {{ $cliente->nombre_completo }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            {{-- Tipo de Crédito --}}
+            <div class="form-group">
+                <label class="form-label fw-semibold">💳 Tipo de Crédito</label>
+                <select name="tipo_credito" class="form-select input-glass" required>
+                    <option value="Personal" {{ $credito->tipo_credito == 'Personal' ? 'selected' : '' }}>Personal</option>
+                    <option value="Hipotecario" {{ $credito->tipo_credito == 'Hipotecario' ? 'selected' : '' }}>Hipotecario</option>
+                    <option value="Educativo" {{ $credito->tipo_credito == 'Educativo' ? 'selected' : '' }}>Educativo</option>
+                    <option value="Automotriz" {{ $credito->tipo_credito == 'Automotriz' ? 'selected' : '' }}>Automotriz</option>
+                    <option value="Comercial" {{ $credito->tipo_credito == 'Comercial' ? 'selected' : '' }}>Comercial</option>
+                </select>
+            </div>
+
+            {{-- Monto solicitado --}}
+            <div class="form-group">
+                <label class="form-label fw-semibold">💰 Monto Solicitado ($)</label>
+                <input type="number" step="0.01" min="0" id="monto" name="monto_solicitado" 
+                    value="{{ $credito->monto_solicitado }}" class="form-control input-glass" required>
+            </div>
+
+            {{-- Tasa de interés --}}
+            <div class="form-group">
+                <label class="form-label fw-semibold">📈 Tasa de Interés (%)</label>
+                <input type="text" id="tasa_interes" name="tasa_interes_display"
+                    value="{{ $credito->tasa_interes * 100 }}%" 
+                    class="form-control input-glass" readonly>
+
+                {{-- Campo oculto para enviar el valor decimal correcto --}}
+                <input type="hidden" id="tasa_interes_real" name="tasa_interes"
+                    value="{{ $credito->tasa_interes }}">
+            </div>
+
+            {{-- Plazo en meses --}}
+            <div class="form-group">
+                <label class="form-label fw-semibold">📅 Plazo (meses)</label>
+                <input type="number" name="plazo_meses" 
+                    value="{{ $credito->plazo_meses }}" min="1" 
+                    class="form-control input-glass" required>
+            </div>
+
+            {{-- Fecha de aprobación --}}
+            <div class="form-group">
+                <label class="form-label fw-semibold">🗓️ Fecha de Aprobación</label>
+                <input type="date" name="fecha_aprobacion" 
+                    value="{{ $credito->fecha_aprobacion }}" 
+                    class="form-control input-glass" required>
+            </div>
+
+            {{-- Estado --}}
+            <div class="form-group">
+                <label class="form-label fw-semibold">📊 Estado</label>
+                <select name="estado" class="form-select input-glass" required>
+                    <option value="Pendiente" {{ $credito->estado == 'Pendiente' ? 'selected' : '' }}>Pendiente</option>
+                    <option value="Aprobado" {{ $credito->estado == 'Aprobado' ? 'selected' : '' }}>Aprobado</option>
+                    <option value="Rechazado" {{ $credito->estado == 'Rechazado' ? 'selected' : '' }}>Rechazado</option>
+                </select>
+            </div>
+
+            <div class="d-flex justify-content-end gap-3 mt-4">
+                <button type="submit" class="btn btn-gradient-lg shadow-lg text-white">
+                    💾 Actualizar Crédito
+                </button>
+                <a href="{{ route('creditos.index') }}" class="btn btn-secondary btn-lg shadow-sm">
+                    ↩ Volver
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+.text-gradient {
+    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+.input-glass {
+    border-radius: 12px;
+    padding: 0.65rem 1rem;
+    font-size: 1.05rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    border: 1px solid #ccc;
+    background-color: #f9f9ff;
+}
+.btn-gradient-lg {
+    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+    border: none;
+    font-size: 1.1rem;
+    padding: 0.7rem 1.5rem;
+    border-radius: 12px;
+    transition: transform 0.2s, box-shadow 0.3s;
+}
+.btn-gradient-lg:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+}
+</style>
+
+<script>
+    const montoInput = document.getElementById('monto');
+    const tasaDisplay = document.getElementById('tasa_interes');
+    const tasaReal = document.getElementById('tasa_interes_real');
+
+    montoInput.addEventListener('input', function() {
+        const monto = parseFloat(this.value);
+        let tasa = 0;
+
+        if (monto <= 500) tasa = 0.05;
+        else if (monto <= 1000) tasa = 0.10;
+        else if (monto <= 5000) tasa = 0.15;
+        else tasa = 0.20;
+
+        tasaDisplay.value = (tasa * 100) + '%';
+        tasaReal.value = tasa; // Valor decimal real (0.05, 0.10, etc.)
+    });
+</script>
+
+</x-app-layout>
